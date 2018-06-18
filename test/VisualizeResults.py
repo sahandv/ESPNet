@@ -119,6 +119,8 @@ def main(args):
     p = args.p
     q = args.q
     classes = 20
+    start_time = time.time()
+
     if args.modelType == 2:
         modelA = Net.ESPNet_Encoder(classes, p, q)  # Net.Mobile_SegNetDilatedIA_C_stage1(20)
         model_weight_file = args.weightsDir + os.sep + 'encoder' + os.sep + 'espnet_p_' + str(p) + '_q_' + str(
@@ -139,21 +141,24 @@ def main(args):
     # modelA = torch.nn.DataParallel(modelA)
     if args.gpu:
         modelA = modelA.cuda()
+        print("GPU is active")
 
     # set to evaluation mode
     modelA.eval()
 
     if not os.path.isdir(args.savedir):
         os.mkdir(args.savedir)
-
+    print("--- %s seconds before evaluation---" % (time.time() - start_time))
     evaluateModel(args, modelA, up, image_list)
+    print("--- %s seconds after evaluation ---" % (time.time() - start_time))
+
 
 
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--model', default="ESPNet", help='Model name')
     parser.add_argument('--data_dir', default="./data", help='Data directory')
-    parser.add_argument('--img_extn', default="png", help='RGB Image format')
+    parser.add_argument('--img_extn', default="jpg", help='RGB Image format')
     parser.add_argument('--inWidth', type=int, default=1024, help='Width of RGB image')
     parser.add_argument('--inHeight', type=int, default=512, help='Height of RGB image')
     parser.add_argument('--scaleIn', type=int, default=1, help='For ESPNet-C, scaleIn=8. For ESPNet, scaleIn=1')
